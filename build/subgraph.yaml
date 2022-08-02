@@ -1,0 +1,75 @@
+specVersion: 0.0.2
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: smolpunks
+    network: mainnet
+    source:
+      address: "0xABE3A95049Cc81Eb6eA74d8bFB60b7d64647E5d0"
+      abi: smolpunks
+      startBlock: 9245744
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ApprovalForAll
+        - OwnershipTransferred
+        - Transfer
+      abis:
+        - name: smolpunks
+          file: smolpunks/abis/smolpunks.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: smolpunks/smolpunks.wasm
+  - kind: ethereum
+    name: cryptophunks
+    network: mainnet
+    source:
+      address: "0xf07468eAd8cf26c752C676E43C814FEe9c8CF402"
+      abi: cryptophunks
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ApprovalForAll
+        - OwnershipTransferred
+        - Transfer
+      abis:
+        - name: cryptophunks
+          file: cryptophunks/abis/cryptophunks.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: cryptophunks/cryptophunks.wasm
+  - kind: ethereum
+    name: dragoncore
+    network: mainnet
+    source:
+      address: "0x989E1Fb123b67afd66e10574c8B409bC6e812D9A"
+      abi: dragoncore
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Pregnant
+        - Birth
+        - DragonAssetsUpdated
+        - DragonAssetRequest
+        - Transfer
+        - Approval
+        - ApprovalForAll
+        - ContractUpgrade
+      abis:
+        - name: dragoncore
+          file: dragoncore/abis/dragoncore.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: dragoncore/dragoncore.wasm
