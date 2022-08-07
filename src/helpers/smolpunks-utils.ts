@@ -1,21 +1,25 @@
-import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { smolpunks, Transfer } from "../../generated/smolpunks/smolpunks";
 import { Account, Collectible, Collection } from "../../generated/schema";
 
 export function getOrCreateAccount(address: Address): Account {
-  let account = Account.load(address.toHexString());
+  let accountAddress = address.toHexString();
+  let account = Account.load(accountAddress);
+
   if (account == null) {
-    account = new Account(address.toHexString());
+    account = new Account(accountAddress);
+    account.address = address;
     account.save();
   }
-  return account;
+  return account as Account;
 }
 
 export function getOrCreateCollection(address: Address): Collection {
-  let collection = Collection.load(address.toHexString());
-  if (collection == null) {
-    collection = new Collection(address.toHexString());
-    collection.save();
+  let collectionId = address.toHexString();
+  let collection = Collection.load(collectionId);
+  if (!collection) {
+    collection = new Collection(collectionId);
+    collection.collectionAddress = address;
 
     let contract = smolpunks.bind(address);
     let nameResult = contract.try_name();
@@ -32,7 +36,7 @@ export function getOrCreateCollection(address: Address): Collection {
 }
 
 export function getOrCreateCollectible(
-  collectionAddress: Address,
+  collectionAddress: Bytes,
   collectionId: string,
   tokenId: BigInt,
   creatorId: string,
@@ -51,9 +55,12 @@ export function getOrCreateCollectible(
     collectible.creator = creatorId;
     collectible.owner = creatorId;
     collectible.created = createdTimestamp;
-    collectible.descriptorUri = smolpunks
-      .bind(Address.fromBytes(collectionAddress))
-      .tokenURI(tokenId);
+
+    let contract = smolpunks.bind(Address.fromBytes(collectionAddress));
+    let callResult = contract.try_tokenURI(tokenId);
+    if (!callResult.reverted) {
+      collectible.descriptorUri = callResult.value;
+    }
     collectible.save();
   }
   return collectible;

@@ -1,11 +1,11 @@
-import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { Transfer } from "../generated/cryptophunks/cryptophunks";
 import { Account, Collectible, Collection } from "../generated/schema";
 import {
   getOrCreateAccount,
   getOrCreateCollection,
   getOrCreateCollectible,
-} from "./helpers/cryptopunks-utils";
+} from "./helpers/cryptophunks-utils";
 
 export function handleTransfer(event: Transfer): void {
   let collection = getOrCreateCollection(event.address);
@@ -17,18 +17,18 @@ export function handleTransfer(event: Transfer): void {
   ) {
     // THIS IS A MINT
     getOrCreateCollectible(
-      Address.fromBytes(collection.collectionAddress),
+      collection.collectionAddress,
       collection.id,
       event.params.tokenId,
       receiver.id,
       event.block.timestamp
     );
   } else {
-    let collectibleId = collection.collectionAddress;
-    // .toHexString()
-    // .concat("-")
-    // .concat(event.params.tokenId.toHexString());
-    let collectible = Collectible.load(collectibleId.toString());
+    let collectibleId = collection.collectionAddress
+      .toHexString()
+      .concat("-")
+      .concat(event.params.tokenId.toHexString());
+    let collectible = Collectible.load(collectibleId);
     if (collectible) {
       if (
         event.params.to ==

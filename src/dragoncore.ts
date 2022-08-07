@@ -1,4 +1,4 @@
-import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { Transfer } from "../generated/dragoncore/dragoncore";
 import { Account, Collectible, Collection } from "../generated/schema";
 import {
@@ -17,18 +17,18 @@ export function handleTransfer(event: Transfer): void {
   ) {
     // THIS IS A MINT
     getOrCreateCollectible(
-      Address.fromBytes(collection.collectionAddress),
+      collection.collectionAddress,
       collection.id,
       event.params._tokenId,
       receiver.id,
       event.block.timestamp
     );
   } else {
-    let collectibleId = collection.collectionAddress;
-    // .toHexString()
-    // .concat("-")
-    // .concat(event.params._tokenId.toHexString());
-    let collectible = Collectible.load(collectibleId.toString());
+    let collectibleId = collection.collectionAddress
+      .toHexString()
+      .concat("-")
+      .concat(event.params._tokenId.toHexString());
+    let collectible = Collectible.load(collectibleId);
     if (collectible) {
       if (
         event.params._to ==
